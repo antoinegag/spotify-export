@@ -63,7 +63,10 @@
 
 <main class="p-5">
 	<div class="flex flex-col items-center justify-center min-h-full">
-		<h1 class="title pb-5">Spotify Export</h1>
+		<h1 class="title">Spotify Export</h1>
+		<div class="pb-5">
+			by Ant @ <a class="underline" href="https://antoineg.dev">antoineg.dev</a> :)
+		</div>
 		{#if $accessToken != null}
 			{#await playlistsInfoPromise then playlistsInfo}
 				{#if !playListsReady}

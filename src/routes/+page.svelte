@@ -10,9 +10,6 @@
 	} from 'src/lib/spotify-api';
 	import { accessTokenExpireTime, accessToken } from 'src/store';
 
-	const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-	console.log($accessToken, $accessTokenExpireTime);
 	let playListsReady = false;
 	let tracksLoaded = false;
 	let playlistsPromise: Promise<any> = Promise.resolve({});
@@ -38,14 +35,33 @@
 	async function loadTracks(playlists: any[]) {
 		const playlistWithTracks = await loadPlaylistTracks(playlists);
 		tracksLoaded = true;
+
 		return playlistWithTracks;
 	}
 
 	let playlistsInfoPromise = loadPlaylistsInformations();
+
+	function createText(playlistsWithTracks: any[]) {
+		return playlistsWithTracks.reduce(
+			(text, playlist) =>
+				`${text}# ${playlist.name}\n${playlist.tracks.reduce(
+					(tracksText: string, track: any) =>
+						`${tracksText}${track.track.name} - ${track.track.artists
+							.map((artist: any) => artist.name)
+							.join(', ')}\n`,
+					''
+				)}\n`,
+			''
+		);
+	}
+
+	function artistNames(track: any) {
+		return track.track.artists.map((artist: any) => artist.name).join(', ');
+	}
 </script>
 
-<main>
-	<div class="flex flex-col items-center justify-center h-full">
+<main class="py-5">
+	<div class="flex flex-col items-center justify-center min-h-full">
 		<h1 class="title pb-5">Spotify Export</h1>
 		{#if $accessToken != null}
 			{#await playlistsInfoPromise then playlistsInfo}
@@ -62,19 +78,34 @@
 				{/if}
 			{/await}
 			{#await playlistsWithTracksPromise then playlists}
-				{#each playlists as playlist}
-					<div class="w-full p-2">
-						<div class="font-bold text-2xl pb-2">{playlist.name}</div>
-						{#if playlist.description}
-							<div class="text-xl pb-5">{playlist.description}</div>
-						{/if}
-						{#each playlist.tracks as track}
-							<div>
-								{track.track.name}
-							</div>
-						{/each}
+				{#if tracksLoaded}
+					<div class="text-center">
+						<div>
+							<b>{playlists.length}</b> playlists exported
+						</div>
+						<div class="text-2xl underline">
+							<a
+								href={window.URL.createObjectURL(
+									new Blob([createText(playlists)], { type: 'text/plain' })
+								)}
+								download="spotify-export.txt">Download as text file</a
+							>
+						</div>
 					</div>
-				{/each}
+					{#each playlists as playlist}
+						<div class="w-full p-2">
+							<div class="font-bold text-2xl pb-2">{playlist.name}</div>
+							{#if playlist.description}
+								<div class="text-xl pb-2">{playlist.description}</div>
+							{/if}
+							{#each playlist.tracks as track}
+								<div class="pb-1">
+									{track.track.name} - {artistNames(track)}
+								</div>
+							{/each}
+						</div>
+					{/each}
+				{/if}
 			{/await}
 		{:else}
 			<LoginWithSpotify onClick={login} />

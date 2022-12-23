@@ -55,7 +55,7 @@ export async function getAllPlaylists(options: { filter?: { ownerId: string } } 
 
 	playlists.push(...firstPage.items);
 
-	for (let i = 1; i < pages - 1; i++) {
+	for (let i = 1; i < pages; i++) {
 		const pagePlaylists = await getPlaylists({ page: i });
 		playlists.push(...pagePlaylists.items);
 	}
@@ -75,7 +75,7 @@ export async function getPlaylists(
 	if (options.offset) {
 		offset = options.offset;
 	} else if (options.page) {
-		offset = options.page * (options.limit ?? 0);
+		offset = options.page * (options.limit ?? 50);
 	}
 
 	const res = await fetchSpotifyAPI(`/me/playlists?limit=${options.limit ?? 50}&offset=${offset}`);
@@ -114,7 +114,7 @@ export async function getAllPlaylistTracks(playlistId: string) {
 
 	tracks.push(...firstPage.items);
 
-	for (let i = 1; i < pages - 1; i++) {
+	for (let i = 1; i < pages; i++) {
 		const pagePlaylists = await getPlaylistTracks(playlistId, { page: i });
 		tracks.push(...pagePlaylists.items);
 	}

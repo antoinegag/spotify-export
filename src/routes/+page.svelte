@@ -34,6 +34,7 @@
 
 	async function loadTracks(playlists: any[]) {
 		const playlistWithTracks = await loadPlaylistTracks(playlists);
+		console.log(playlistWithTracks);
 		tracksLoaded = true;
 
 		return playlistWithTracks;
@@ -60,7 +61,7 @@
 	}
 </script>
 
-<main class="py-5">
+<main class="p-5">
 	<div class="flex flex-col items-center justify-center min-h-full">
 		<h1 class="title pb-5">Spotify Export</h1>
 		{#if $accessToken != null}
@@ -71,7 +72,7 @@
 				{/if}
 			{/await}
 			{#await playlistsPromise then playlists}
-				{#if !tracksLoaded}
+				{#if !tracksLoaded && playListsReady}
 					<Wave color="black" size={50} />
 					<div class="pt-5 text-lg">Loading tracks for <b>{playlists.length}</b> playlists.</div>
 					<div>(filtered out your liked playlists)</div>
@@ -79,7 +80,7 @@
 			{/await}
 			{#await playlistsWithTracksPromise then playlists}
 				{#if tracksLoaded}
-					<div class="text-center">
+					<div class="text-center pb-5">
 						<div>
 							<b>{playlists.length}</b> playlists exported
 						</div>
@@ -92,19 +93,24 @@
 							>
 						</div>
 					</div>
-					{#each playlists as playlist}
-						<div class="w-full p-2">
-							<div class="font-bold text-2xl pb-2">{playlist.name}</div>
-							{#if playlist.description}
-								<div class="text-xl pb-2">{playlist.description}</div>
-							{/if}
-							{#each playlist.tracks as track}
-								<div class="pb-1">
-									{track.track.name} - {artistNames(track)}
+					<div>
+						{#each playlists as playlist}
+							<div class="md:p-5 md:flex md:space-x-5 pb-5">
+								<div><img class="w-32" src={playlist.images[0].url} alt="Album cover" /></div>
+								<div>
+									<div class="font-bold text-2xl pb-2">{playlist.name}</div>
+									{#if playlist.description}
+										<div class="text-xl pb-2">{playlist.description}</div>
+									{/if}
+									{#each playlist.tracks as track}
+										<div class="pb-1">
+											{track.track.name} - {artistNames(track)}
+										</div>
+									{/each}
 								</div>
-							{/each}
-						</div>
-					{/each}
+							</div>
+						{/each}
+					</div>
 				{/if}
 			{/await}
 		{:else}

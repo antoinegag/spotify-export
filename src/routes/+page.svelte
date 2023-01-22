@@ -8,7 +8,7 @@
 		getAllPlaylists,
 		loadPlaylistTracks
 	} from 'src/lib/spotify-api';
-	import { accessTokenExpireTime, accessToken } from 'src/store';
+	import { accessToken } from 'src/store';
 
 	let playListsReady = false;
 	let tracksLoaded = false;
@@ -34,7 +34,6 @@
 
 	async function loadTracks(playlists: any[]) {
 		const playlistWithTracks = await loadPlaylistTracks(playlists);
-		console.log(playlistWithTracks);
 		tracksLoaded = true;
 
 		return playlistWithTracks;
@@ -73,6 +72,8 @@
 					<Stretch color="black" size={50} />
 					<div class="pt-5 text-lg">Loading <b>{playlistsInfo?.playlists.total}</b> playlists</div>
 				{/if}
+			{:catch error}
+				<p style="color: red">{error.message}</p>
 			{/await}
 			{#await playlistsPromise then playlists}
 				{#if !tracksLoaded && playListsReady}
@@ -80,6 +81,8 @@
 					<div class="pt-5 text-lg">Loading tracks for <b>{playlists.length}</b> playlists.</div>
 					<div>(filtered out your liked playlists)</div>
 				{/if}
+			{:catch error}
+				<p style="color: red">{error.message}</p>
 			{/await}
 			{#await playlistsWithTracksPromise then playlists}
 				{#if tracksLoaded}
@@ -115,6 +118,8 @@
 						{/each}
 					</div>
 				{/if}
+			{:catch error}
+				<p style="color: red">{error.message}</p>
 			{/await}
 		{:else}
 			<LoginWithSpotify onClick={login} />
